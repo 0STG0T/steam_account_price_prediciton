@@ -1,2 +1,3 @@
 /catboost_info
-dataset.json
+*.json
+*.onnx
