@@ -1,0 +1,36 @@
+model:
+  iterations: 60000
+  l2_leaf_reg: 2.7
+  early_stopping_rounds: 300
+  posterior_sampling: true
+  grow_policy: "SymmetricTree"
+  bootstrap_type: "Bernoulli"
+  random_state: 42
+  leaf_estimation_method: "Newton"
+  score_function: "Cosine"
+  colsample_bylevel: 0.94
+  thread_count: 4
+
+data:
+  train_test_split: 0.2
+  validation_split: 0.1
+  random_seed: 42
+  feature_engineering:
+    categorical_features:
+      - item_origin
+      - steam_country
+      - steam_community_ban
+      - steam_is_limited
+      - steam_cs2_wingman_rank_id
+      - steam_cs2_rank_id
+      - steam_cs2_ban_type
+      - steam_currency
+
+logging:
+  training_log_interval: 250
+  base_log_dir: "logs"
+  metrics:
+    - "RMSE"
+    - "MAE"
+    - "R2"
+    - "PearsonCorrelation"

@@ -190,12 +190,14 @@ class SingleCategoryModel:
         """
         return re.sub(r'[0-9.,-]', '', s) if isinstance(s, str) else s
 
-    def train(self, df):
+    def train(self, df, callback=None):
         """
         Trains the CatBoost model on the provided dataset.
 
         Parameters:
         - df: pd.DataFrame - Training dataset.
+        - callback: callable - Optional callback function that receives (epoch, metrics) as parameters
+               for logging training progress.
 
         Returns:
         - CatBoostRegressor - Trained model.
@@ -203,9 +205,9 @@ class SingleCategoryModel:
         df = self.preprocess_data(df)
         X_train = df.drop(columns=['sold_price'])
         y_train = df['sold_price']
-        
+
         X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.15, random_state=42, shuffle=True)
-        
+
         self.meta_model = CatBoostRegressor(
             iterations=60000,
             l2_leaf_reg=2.7,
@@ -221,10 +223,31 @@ class SingleCategoryModel:
             thread_count=4,
         )
 
-        self.meta_model.fit(X_train, y_train, eval_set=(X_val, y_val), verbose=250)
-        
+        class MetricsCallback:
+            def __init__(self, user_callback):
+                self.user_callback = user_callback
+
+            def after_iteration(self, info):
+                if self.user_callback and info.iteration % 250 == 0:
+                    metrics = {
+                        'iteration': info.iteration,
+                        'learn_loss': info.metrics['learn']['RMSE'],
+                        'validation_loss': info.metrics['validation']['RMSE']
+                    }
+                    self.user_callback(info.iteration, metrics)
+                return True
+
+        callbacks = [MetricsCallback(callback)] if callback else None
+
+        self.meta_model.fit(
+            X_train, y_train,
+            eval_set=(X_val, y_val),
+            verbose=250,
+            callbacks=callbacks
+        )
+
         print("Training complete.")
-        
+
         return self.meta_model
 
     def validate(self, valid_df, save_plot_path="pearson_vs_samples.png"):
