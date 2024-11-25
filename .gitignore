@@ -1,3 +1,16 @@
 /catboost_info
 *.json
 *.onnx
+
+# Python
+*.pyc
+__pycache__/
+.ipynb_checkpoints/
+
+# Docker
+.env
+docker-compose.override.yml
+
+# Data and models
+data/
+models/
