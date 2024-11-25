@@ -1,0 +1,12 @@
+version: '3'
+services:
+  steam-price-predictor:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+    command: train
