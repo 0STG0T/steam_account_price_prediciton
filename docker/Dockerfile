@@ -25,21 +25,14 @@ RUN apt-get update && apt-get install -y \
 
 # Create directory structure
 WORKDIR /app
-RUN mkdir -p /app/data /app/models /app/notebooks
+RUN mkdir -p /app/data /app/models/onnx /app/upload
 
 # Copy project files
-COPY project/main /app/main
-COPY project/idea_notebooks /app/notebooks
 COPY docker/*.py /app/docker/
-
-# Set up Jupyter
-RUN pip install --user jupyter
-
-# Copy entrypoint script
 COPY docker/entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh /app/docker/cli.py
 
-# Expose Jupyter port
-EXPOSE 8888
+# Set environment variables
+ENV PYTHONPATH=/app
 
 ENTRYPOINT ["/app/entrypoint.sh"]
