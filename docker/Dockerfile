@@ -30,6 +30,7 @@ RUN mkdir -p /app/data /app/models /app/notebooks
 # Copy project files
 COPY project/main /app/main
 COPY project/idea_notebooks /app/notebooks
+COPY docker/*.py /app/docker/
 
 # Set up Jupyter
 RUN pip install --user jupyter
