@@ -12,6 +12,7 @@ from statsmodels.nonparametric.smoothers_lowess import lowess
 import seaborn as sns
 from scipy.stats import norm
 import warnings
+from src.models.custom_metric import UserDefinedMetric, UserDefinedObjective
 
 warnings.filterwarnings('ignore')
 
@@ -21,7 +22,10 @@ class SingleCategoryModel:
         self.category_number = category_number
         base_params = {
             'grow_policy': 'SymmetricTree',
-            'bootstrap_type': 'Bernoulli'
+            'bootstrap_type': 'Bernoulli',
+            #'eval_metric': UserDefinedMetric(penalty_factor=2.0),
+            'eval_metric': 'RMSE',
+            'loss_function': UserDefinedObjective(penalty_factor=1.2),
         }
         if params:
             base_params.update(params)
@@ -60,7 +64,9 @@ class SingleCategoryModel:
         model = cls(category_number=1)
         base_params = {
             'grow_policy': 'SymmetricTree',
-            'bootstrap_type': 'Bernoulli'
+            'bootstrap_type': 'Bernoulli',
+            'eval_metric': 'RMSE',
+            'loss_function': UserDefinedObjective(penalty_factor=1.2),
         }
         model.meta_model = CatBoostRegressor(**base_params)
         model.meta_model.load_model(model_path, format='onnx')
@@ -286,7 +292,6 @@ class SingleCategoryModel:
 
         # Generate predictions
         preds = self.meta_model.predict(X_val)
-        preds = np.clip(preds, 0, None)
 
         # Compute metrics
         mae = mean_absolute_error(y_val, preds)

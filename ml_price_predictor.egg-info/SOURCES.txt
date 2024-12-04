@@ -17,5 +17,6 @@ src/train.py
 src/data_processing/__init__.py
 src/data_processing/train_columns.py
 src/models/__init__.py
+src/models/custom_metric.py
 src/models/single_cat_model.py
 tests/test_pipeline.py
